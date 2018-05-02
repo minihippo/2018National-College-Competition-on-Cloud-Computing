@@ -34,20 +34,20 @@ object RecPartUserRdd {
     }
   }
 
-//  class MyOrdering3[T] extends Ordering[T] {
-//    def compare(x: T, y: T): Int = {
-//      (x, y) match {
-//        case (null, null) => 0
-//        case (iX: (Double, String), iY: (Double, String)) => {
-//          if (iX._1 == iY._1) {
-//            iY._2 compare iX._2
-//          } else {
-//            iX._1 compare iY._1
-//          }
-//        }
-//      }
-//    }
-//  }
+  //  class MyOrdering3[T] extends Ordering[T] {
+  //    def compare(x: T, y: T): Int = {
+  //      (x, y) match {
+  //        case (null, null) => 0
+  //        case (iX: (Double, String), iY: (Double, String)) => {
+  //          if (iX._1 == iY._1) {
+  //            iY._2 compare iX._2
+  //          } else {
+  //            iX._1 compare iY._1
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
 
   def run(myConf: Conf, conf: SparkConf): Unit = {
 
@@ -87,33 +87,6 @@ object RecPartUserRdd {
     ).map(items => HashSet(items: _*)
     ).zipWithIndex()
     //      .cache()
-
-    userDataRdd.repartition(partitionNum)(new MyOrdering2[(HashSet[Int], Long)])
-      .mapPartitionsWithIndex {
-        (x, iter) => {
-          var result = List[String]()
-          var i = 0
-          var i_50 = 0
-          var i_100 = 0
-          var i_500 = 0
-          var i_1195 = 0
-          while (iter.hasNext) {
-            val len = iter.next()._1.size
-            if (len <= 25)
-              i += 1
-            if (len > 25 && len <=50)
-              i_50 += 1
-            if (len > 50 && len <=100)
-              i_100 += 1
-            if (len > 100 && len <=500)
-              i_500 += 1
-            if (len > 500)
-              i_1195 += 1
-          }
-          result.::(x + "|25:" + i + "-50:" + i_50 + "-100:" + i_100 + "-500:" + i_500 + "-1195:" + i_1195).iterator
-
-        }
-      }.collect().foreach(x => println(x))
 
     //new def mappartition
     def calFunc(iter: Iterator[(HashSet[Int], Long)]): Iterator[(Long, Int)] = {
@@ -174,54 +147,13 @@ object RecPartUserRdd {
       .repartition(partitionNum)(new MyOrdering2[(HashSet[Int], Long)])
       .mapPartitions(calFunc)
       .cache()
-//
-//    (userRdd_25 ++ userRdd_30 ++ userRdd_60 ++ userRdd_100 ++ userRdd_1195).sortByKey()
-//      .map(userRec => {
-//        userRec._2
-//      })
-//      .saveAsTextFile(myConf.outputFilePath + "/Rec")
 
-    //new version
-    //    userDataRdd.mapPartitions(calFunc).cache()
-    //      .sortByKey()
-    //      .map(userRec => {
-    //        userRec._2
-    //      })
-    //      .saveAsTextFile(myConf.outputFilePath + "/Rec")
+    (userRdd_25 ++ userRdd_30 ++ userRdd_60 ++ userRdd_100 ++ userRdd_1195).sortByKey()
+      .map(userRec => {
+        userRec._2
+      })
+      .saveAsTextFile(myConf.outputFilePath + "/Rec")
 
-    //old version
-    //    userDataRdd.map(user => {
-    //        var rec_item = 0
-    //        val loop = new Breaks
-    //        loop.breakable {
-    //          for (i <- associationRules.value.indices) {
-    //            var flag = true
-    //            val end = associationRules.value(i).consequent(0)
-    //            //判断规则是否符合条件
-    //            if (user._1.size >= associationRules.value(i).antecedent.length && !user._1.contains(end)) {
-    //              val iterate = associationRules.value(i).antecedent.iterator
-    //              val loop_rule = new Breaks
-    //              loop_rule.breakable {
-    //                while (iterate.hasNext) {
-    //                  if (!user._1.contains(iterate.next())) {
-    //                    flag = false
-    //                    loop_rule.break()
-    //                  }
-    //                }
-    //              }
-    //              if (flag) {
-    //                rec_item = end
-    //                loop.break()
-    //              }
-    //            }
-    //          }
-    //        }
-    //        (user._2, rec_item)
-    //      }).cache()
-    //      .sortByKey()
-    //      .map(userRec => {
-    //        userRec._2
-    //      })
-    //      .saveAsTextFile(myConf.outputFilePath + "/Rec")
+
   }
 }
