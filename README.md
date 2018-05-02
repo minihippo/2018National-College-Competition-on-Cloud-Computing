@@ -1,11 +1,27 @@
 # 2018全国高校云计算应用创新大赛
-#### 最终排名：1
-repo为赛题一部分，采用的频繁项集挖掘算法为PFP-Growth  
-比赛相关信息点[这里](https://cloud.seu.edu.cn/contest/index)
+比赛相关信息点[这里](https://cloud.seu.edu.cn/contest/index)  
+repo为**技能赛**的赛题一：面向大数据的高高效关联规则推荐算法  
+购物篮数据集
+| 记录数       | 项目数  | 最短长度 | 最长长度 | 平均长度 |
+| ---------------- |------------- | ----------------- | -------- | ------- |
+| 1,692,082 | 5,267,656 | 1 | 71,472 | 177 |
+
+用户数据集
+| 用户数       | 项目数  | 最短长度 | 最长长度 | 平均长度 |
+| ---------------- |------------- | ----------------- | -------- | ------- |
+| 330,244 | 1,080,203 | 4 | 1,195 | 130 |
+
+采用的频繁项集挖掘算法为PFP-Growth
+
+### 最终排名：1
 
 ### 项目结构
 
-　　本项目用scala语言编写，用maven组织。代码结构如下。项目src/main/AR目录下存放源代码文件。main文件夹中存放频繁项集挖掘与关联规则生成与关联规则匹配与推荐分值计算这两个模块的代码。util包里FPTree、AssociationRules是频繁项集挖掘所必须的数据结构，FPNewDef是基于mllib的FP-Growth算法的优化版本。conf文件夹包含一个Conf类用于程序运行参数配置。
+　　本项目用scala语言编写，用maven组织。代码结构如下。
+- 项目src/main/AR目录下存放源代码文件。
+- main文件夹中存放频繁项集挖掘与关联规则生成与关联规则匹配与推荐分值计算这两个模块的代码。
+- util包里FPTree、AssociationRules是频繁项集挖掘所必须的数据结构，FPNewDef是基于mllib的FP-Growth算法的优化版本。
+- conf文件夹包含一个Conf类用于程序运行参数配置。
 
 ~~~shell
 |____src
@@ -85,9 +101,6 @@ Conf类实现了运行参数的配置，在脚本中可配的参数如表所示�
 | --spark_memory_fraction         | spark内存参数     | Double   | 0.7     |
 | --spark_memory_storage_Fraction | spark内存参数     | Double   | 0.3     |
 | --spark_shuffle_spill_compress  | spark shuffle参数 | Boolean  | true    |
-
-| 参数名称                      | 参数解释                   | 参数类型 | 默认值 |
-| ----------------------------- | -------------------------- | -------- | ------ |
 | --spark_memory_offHeap_enable | spark堆外存参数            | Boolean  | true   |
 | --spark_memory_offHeap_size   | spark参数                  | String   | 5g     |
 | --spark_executor_instances    | 程序创建executor个数       | Int      | 21     |
