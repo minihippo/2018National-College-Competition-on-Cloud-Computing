@@ -50,7 +50,7 @@ object FP_Growth {
     val fpgrowth = fp.run(transactions, sc, myConf)
     fpgrowth.freqItemsets.persist(StorageLevel.MEMORY_AND_DISK_SER)
     genFreSortBy(myConf.outputFilePath + "/Freq", fpgrowth)
-    genRules(myConf.tempFilePath, fpgrowth)
+//    genRules(myConf.tempFilePath, fpgrowth)
     sc.stop()
   }
 

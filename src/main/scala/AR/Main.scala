@@ -20,10 +20,10 @@ object Main {
     FP_Growth.total(myConf, conf)
     val end = System.currentTimeMillis()
     println("total time: " + (end - start) / 1000 + "s")
-
-    val conf = new SparkConf().setAppName(myConf.appName)//.setMaster("local")
-    RecPartUserRdd.run(myConf, conf)
-    println("total time: " + (System.currentTimeMillis() - end) / 1000 + "s")
+//
+//    val conf = new SparkConf().setAppName(myConf.appName)//.setMaster("local")
+//    RecPartUserRdd.run(myConf, conf)
+//    println("total time: " + (System.currentTimeMillis() - end) / 1000 + "s")
 
   }
 
