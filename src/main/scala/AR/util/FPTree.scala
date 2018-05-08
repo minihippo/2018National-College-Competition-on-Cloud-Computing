@@ -106,8 +106,8 @@ class ReFPTree[T](val validateSuffix: T => Boolean = _ => true) extends Serializ
     this
   }
 
-  def combine(prefix: List[T], suffix: T): List[List[T]] = {
-    var combination: List[List[T]] = List(List(suffix))
+  def combine(prefix: List[T], suffix: List[T]): List[List[T]] = {
+    var combination: List[List[T]] = List(suffix)
     prefix.foreach(item => {
       combination = combination ::: combination.map(list => item :: list)
     })
@@ -117,37 +117,38 @@ class ReFPTree[T](val validateSuffix: T => Boolean = _ => true) extends Serializ
   def project(reNode: ReNode[T]): List[T] = {
     var curr = reNode
     val path: ListBuffer[T] = ListBuffer.empty
-    while(!curr.isRoot) {
+    while (!curr.isRoot) {
       path += curr.item
       curr = curr.parent
     }
     path.toList
   }
 
-  def extract(minCount: Long, item: T, summary: Summary[T]):Iterator[(List[T], Long)] = {
+  def extract(minCount: Long, suffix: List[T], summary: Summary[T]): Iterator[(List[T], Long)] = {
     val freqItemset: ListBuffer[(List[T], Long)] = ListBuffer.empty
     if (summary.parents.size == 1 && summary.count >= minCount) {
-        val parent = summary.parents.head
-        val prefix = project(parent._1)
-        if (prefix.size != 0) {
-            combine(prefix, item).map(list => freqItemset.append((list, summary.count)))
-        } else {
-          freqItemset.append((List(item), summary.count))
-        }
-
-    } else {
+      val parent = summary.parents.head
+      val prefix = project(parent._1)
+      if (prefix.size != 0) {
+        combine(prefix, suffix).map(list => freqItemset.append((list, summary.count)))
+      } else {
+        freqItemset.append((suffix, summary.count))
+      }
+    } else if (summary.parents.size > 1 && summary.count >= minCount) {
+      val parents = mutable.Map.empty
+      summary.parents.foreach{case (node, count) => parents.getOrElseUpdate(node.item)}
 
     }
     freqItemset.toIterator
   }
 
-  def traverse(minCount: Long):Iterator[(List[T], Long)] = {
+  def traverse(minCount: Long): Iterator[(List[T], Long)] = {
     summaries.iterator.flatMap { case (item, summary) =>
-        if (validateSuffix(item)) {
-          extract(minCount, item, summary)
-        } else {
-          Iterator.empty
-        }
+      if (validateSuffix(item)) {
+        extract(minCount, List(item), summary)
+      } else {
+        Iterator.empty
+      }
     }
   }
 }
