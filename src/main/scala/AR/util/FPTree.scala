@@ -1,5 +1,7 @@
 package AR.util
 
+import javafx.scene.Parent
+
 import AR.util.FPTree.Node
 
 import scala.collection.mutable
@@ -107,7 +109,7 @@ class ReFPTree[T](val validateSuffix: T => Boolean = _ => true) extends Serializ
   }
 
   def combine(prefix: List[T], suffix: List[T]): List[List[T]] = {
-    var combination: List[List[T]] = List(suffix)
+    var combination = List(suffix)
     prefix.foreach(item => {
       combination = combination ::: combination.map(list => item :: list)
     })
@@ -124,28 +126,81 @@ class ReFPTree[T](val validateSuffix: T => Boolean = _ => true) extends Serializ
     path.toList
   }
 
-  def extract(minCount: Long, suffix: List[T], summary: Summary[T]): Iterator[(List[T], Long)] = {
-    val freqItemset: ListBuffer[(List[T], Long)] = ListBuffer.empty
-    if (summary.parents.size == 1 && summary.count >= minCount) {
-      val parent = summary.parents.head
-      val prefix = project(parent._1)
-      if (prefix.size != 0) {
-        combine(prefix, suffix).map(list => freqItemset.append((list, summary.count)))
-      } else {
-        freqItemset.append((suffix, summary.count))
-      }
-    } else if (summary.parents.size > 1 && summary.count >= minCount) {
-      val parents = mutable.Map.empty
-      summary.parents.foreach{case (node, count) => parents.getOrElseUpdate(node.item)}
+  def extract(minCount: Long, suffix: List[T], count: Long,
+              parents: mutable.Map[T, ListBuffer[(ReNode[T], Long)]]): ListBuffer[(List[T], Long)] = {
+    val partFreqSet = ListBuffer.empty[(List[T], Long)]
+    val deepNodeID = parents.keys.max
+    val deepNodes = parents(deepNodeID)
 
+    if (parents.keys.size == 1 && deepNodes.map(_._2).sum >= minCount) {
+      partFreqSet ++= extractOnePath(minCount, suffix, count, deepNodes.head._1)
+      return partFreqSet
     }
-    freqItemset.toIterator
+
+    val nSuffix = deepNodeID::suffix
+    var nSuffix_count = 0
+    var suffix_count = count
+    val deepNodes_parents = mutable.Map.empty[T, ListBuffer[(ReNode[T], Long)]]
+    parents -= deepNodeID
+    deepNodes.foreach { case (node, count) =>
+        if (!node.parent.isRoot) {
+          val deep_nodes = deepNodes_parents.getOrElseUpdate(node.parent.item, ListBuffer.empty[(ReNode[T], Long)])
+          deep_nodes.append((node.parent, count))
+          val nodes = parents.getOrElseUpdate(node.parent.item, ListBuffer.empty[(ReNode[T], Long)])
+          nodes.append((node.parent, count))
+          nSuffix_count += count
+        } else {
+          suffix_count -= count
+        }
+    }
+    if (nSuffix_count >= minCount && nSuffix_count != 0) {
+      partFreqSet.append((nSuffix, nSuffix_count))
+      partFreqSet ++= extract(minCount, nSuffix, nSuffix_count, deepNodes_parents)
+    }
+
+    if (suffix_count >= minCount && suffix_count != 0) {
+      partFreqSet ++= extract(minCount, suffix, suffix_count, parents)
+    }
+    partFreqSet
+  }
+
+  def extractOnePath(minCount: Long, suffix: List[T],
+                     count: Long, parent: ReNode[T]): ListBuffer[(List[T], Long)] = {
+    val partFreqSet = ListBuffer.empty[(List[T], Long)]
+    val prefix = project(parent)
+    if (prefix.size != 0) {
+      combine(prefix, suffix).map(list => partFreqSet.append((list, count)))
+    } else {
+      partFreqSet.append((suffix, count))
+    }
+    partFreqSet
   }
 
   def traverse(minCount: Long): Iterator[(List[T], Long)] = {
     summaries.iterator.flatMap { case (item, summary) =>
       if (validateSuffix(item)) {
-        extract(minCount, List(item), summary)
+        val freqItemset = ListBuffer.empty[(List[T], Long)]
+        if (summary.parents.size == 1 && summary.count >= minCount) {
+          freqItemset ++= extractOnePath(minCount, List(item), summary.count, summary.parents.head._1)
+        } else if (summary.parents.size > 1 && summary.count >= minCount) {
+          freqItemset.append((List(item), summary.count))
+          val parents = mutable.Map.empty[T, ListBuffer[(ReNode[T], Long)]]
+          var suffix_count = summary.count
+          summary.parents.foreach { case (node, count) =>
+            if (!node.isRoot) {
+              val nodes = parents.getOrElseUpdate(node.item, ListBuffer.empty[(ReNode[T], Long)])
+              nodes.append((node, count))
+            } else {
+              suffix_count -= count
+            }
+          }
+
+          if (suffix_count >= minCount) {
+            freqItemset ++= extract(minCount, List(item), suffix_count, parents)
+          }
+
+        }
+        freqItemset.toIterator
       } else {
         Iterator.empty
       }
