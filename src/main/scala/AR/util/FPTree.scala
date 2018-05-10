@@ -153,24 +153,30 @@ class ReFPTree[T]() extends Serializable {
     }
     //over one path
     val nSuffix = suffix :+ deepNodeID
+//    var nSuffix_count = deepNodes.map(_._2).sum
     var nSuffix_count = 0L
+    var countRoot = 0L
     var suffix_count = count
     val deepNodes_parents = mutable.Map.empty[Int, ListBuffer[(ReNode, Long)]]
     parents -= deepNodeID
     deepNodes.foreach { case (node, count) =>
+      nSuffix_count += count
       if (!node.parent.isRoot) {
         val deep_nodes = deepNodes_parents.getOrElseUpdate(node.parent.item, ListBuffer.empty[(ReNode, Long)])
         deep_nodes.append((node.parent, count))
         val nodes = parents.getOrElseUpdate(node.parent.item, ListBuffer.empty[(ReNode, Long)])
         nodes.append((node.parent, count))
-        nSuffix_count += count
       } else {
         suffix_count -= count
+        countRoot += count
       }
     }
-    //backtraking suffix+maxparent
-    if (nSuffix_count >= minCount && nSuffix_count != 0) {
+    if (nSuffix_count >= minCount) {
       partFreqSet.append((nSuffix, nSuffix_count))
+    }
+    //backtraking suffix+maxparent
+    nSuffix_count -= countRoot
+    if (nSuffix_count >= minCount && nSuffix_count != 0) {
       partFreqSet ++= extract(minCount, nSuffix, nSuffix_count, deepNodes_parents)
     }
     //backtacking suffix without maxparent
