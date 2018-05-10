@@ -91,6 +91,7 @@ class FPTree[T] extends Serializable {
                validateSuffix: T => Boolean = _ => true): Iterator[(List[T], Long)] = {
     summaries.iterator.flatMap { case (item, summary) =>
       if (validateSuffix(item) && summary.count >= minCount) {
+//        println("-------------------", item)
         Iterator.single((item :: Nil, summary.count)) ++
           project(item).extract(minCount).map { case (t, c) =>
             (item :: t, c)

@@ -13,7 +13,7 @@ case class Conf() {
   var appName: String = "Test"
   //  var appName: String = "FP_Growth"
 
-  var numPartitionAB: Int = 336
+  var numPartitionAB: Int = 1 //336
   //336 // partition number used in AB stage
   var numPartitionCD: Int = 168 //168 //partition number used in CD stage
 
