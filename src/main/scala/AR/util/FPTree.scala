@@ -120,7 +120,7 @@ class ReFPTree[T]() extends Serializable {
   def combine(prefix: List[Int], suffix: List[Int]): List[List[Int]] = {
     var combination = List(suffix)
     prefix.foreach(item => {
-      combination = combination ::: combination.map(list => item :: list)
+      combination = combination ::: combination.map(list => list :+ item)
     })
     combination
   }
@@ -153,13 +153,13 @@ class ReFPTree[T]() extends Serializable {
     val partFreqSet = ListBuffer.empty[(List[Int], Long)]
     val deepNodeID = parents.keys.max
     val deepNodes = parents(deepNodeID)
+    val nSuffix = suffix :+ deepNodeID
     //backtracking then get only one path
     if (parents.keys.size == 1 && count >= minCount) {
-      partFreqSet ++= extractOnePath(minCount, suffix, count, deepNodes.head._1)
+      partFreqSet ++= extractOnePath(minCount, nSuffix, count, deepNodes.head._1.parent)
       return partFreqSet
     }
     //over one path
-    val nSuffix = deepNodeID :: suffix
     var nSuffix_count = 0L
     var suffix_count = count
     val deepNodes_parents = mutable.Map.empty[Int, ListBuffer[(ReNode, Long)]]
