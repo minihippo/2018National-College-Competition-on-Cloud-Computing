@@ -73,6 +73,12 @@ class FPTree[T] extends Serializable {
   //      }
   //    }
   //  }
+
+  def extract(minCount: Long,
+              validateSuffix: T => Boolean = _ => true): Iterator[(List[T], Long)] = {
+    val reFPTree = new ReFPTree[T](validateSuffix)
+    reFPTree.generateTree(root).traverse(minCount)
+  }
 }
 
 object FPTree {
@@ -126,17 +132,30 @@ class ReFPTree[T](val validateSuffix: T => Boolean = _ => true) extends Serializ
     path.toList
   }
 
+  def extractOnePath(minCount: Long, suffix: List[T],
+                     count: Long, parent: ReNode[T]): ListBuffer[(List[T], Long)] = {
+    val partFreqSet = ListBuffer.empty[(List[T], Long)]
+    val prefix = project(parent)
+    if (prefix.size != 0) {
+      combine(prefix, suffix).map(list => partFreqSet.append((list, count)))
+    } else {
+      partFreqSet.append((suffix, count))
+    }
+    partFreqSet
+  }
+
+
   def extract(minCount: Long, suffix: List[T], count: Long,
               parents: mutable.Map[T, ListBuffer[(ReNode[T], Long)]]): ListBuffer[(List[T], Long)] = {
     val partFreqSet = ListBuffer.empty[(List[T], Long)]
     val deepNodeID = parents.keys.max
     val deepNodes = parents(deepNodeID)
-
-    if (parents.keys.size == 1 && deepNodes.map(_._2).sum >= minCount) {
+    //backtracking then get only one path
+    if (parents.keys.size == 1 && count >= minCount) {
       partFreqSet ++= extractOnePath(minCount, suffix, count, deepNodes.head._1)
       return partFreqSet
     }
-
+    //over one path
     val nSuffix = deepNodeID::suffix
     var nSuffix_count = 0
     var suffix_count = count
@@ -153,25 +172,14 @@ class ReFPTree[T](val validateSuffix: T => Boolean = _ => true) extends Serializ
           suffix_count -= count
         }
     }
+    //backtraking suffix+maxparent
     if (nSuffix_count >= minCount && nSuffix_count != 0) {
       partFreqSet.append((nSuffix, nSuffix_count))
       partFreqSet ++= extract(minCount, nSuffix, nSuffix_count, deepNodes_parents)
     }
-
+    //backtacking suffix without maxparent
     if (suffix_count >= minCount && suffix_count != 0) {
       partFreqSet ++= extract(minCount, suffix, suffix_count, parents)
-    }
-    partFreqSet
-  }
-
-  def extractOnePath(minCount: Long, suffix: List[T],
-                     count: Long, parent: ReNode[T]): ListBuffer[(List[T], Long)] = {
-    val partFreqSet = ListBuffer.empty[(List[T], Long)]
-    val prefix = project(parent)
-    if (prefix.size != 0) {
-      combine(prefix, suffix).map(list => partFreqSet.append((list, count)))
-    } else {
-      partFreqSet.append((suffix, count))
     }
     partFreqSet
   }
@@ -183,7 +191,9 @@ class ReFPTree[T](val validateSuffix: T => Boolean = _ => true) extends Serializ
         if (summary.parents.size == 1 && summary.count >= minCount) {
           freqItemset ++= extractOnePath(minCount, List(item), summary.count, summary.parents.head._1)
         } else if (summary.parents.size > 1 && summary.count >= minCount) {
+          // 1-suffix, 1-freqItemSet
           freqItemset.append((List(item), summary.count))
+          // 1-suffix, over 1-freqItemSet
           val parents = mutable.Map.empty[T, ListBuffer[(ReNode[T], Long)]]
           var suffix_count = summary.count
           summary.parents.foreach { case (node, count) =>
@@ -194,7 +204,7 @@ class ReFPTree[T](val validateSuffix: T => Boolean = _ => true) extends Serializ
               suffix_count -= count
             }
           }
-
+          // for suffix count > mincount, get its path
           if (suffix_count >= minCount) {
             freqItemset ++= extract(minCount, List(item), suffix_count, parents)
           }
