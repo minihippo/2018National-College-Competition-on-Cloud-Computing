@@ -45,7 +45,7 @@ object FP_Growth {
     val transactions = data.map(s => s.trim.split(' ').map(f => f.toInt))
 
     val fp = new FPNewDef() //FPGrowth(）
-      .setMinSupport(0.5) // 0.092
+      .setMinSupport(0.8) // 0.092
       .setNumPartitions(partitionNum)
     val fpgrowth = fp.run(transactions)
     fpgrowth.freqItemsets.persist(StorageLevel.MEMORY_AND_DISK_SER)
@@ -62,7 +62,7 @@ object FP_Growth {
     */
   def genFreSortBy(outPath: String, model: FPModel) = {
     val freqUnsort = model.freqItemsets//.persist(StorageLevel.MEMORY_AND_DISK_SER)
-    val freqSort = freqUnsort.map(itemset => s"${itemset.items.mkString(" ")}").sortBy(f => f)
+    val freqSort = freqUnsort.map(itemset => s"${itemset.items.mkString(" ")}: ${itemset.freq}").sortBy(f => f)
     println("frequentItemSet count:",freqSort.count())
     //save
     freqSort.saveAsTextFile(outPath)
