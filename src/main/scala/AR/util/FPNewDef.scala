@@ -91,13 +91,13 @@ class FPNewDef private(
     * @return an FPGrowthModel
     *
     */
-  def run(data: RDD[Array[Int]], sc: SparkContext, conf: Conf): FPModel = {
+  def run(data: RDD[Array[Int]]): FPModel = {
     val count = data.count()
     val minCount = math.ceil(minSupport * count).toLong
     val numParts = if (numPartitions > 0) numPartitions else data.partitions.length
     val partitioner = new HashPartitioner(numParts)
     val freqItems = genFreqItems(data, minCount, partitioner)
-    val freqItemsets = genFreqItemsets(data, minCount, freqItems, partitioner, sc, conf)
+    val freqItemsets = genFreqItemsets(data, minCount, freqItems, partitioner)
     new FPModel(freqItemsets)
   }
 
@@ -179,9 +179,7 @@ class FPNewDef private(
                                data: RDD[Array[Int]],
                                minCount: Long,
                                freqItems: Array[Int],
-                               partitioner: Partitioner,
-                               sc: SparkContext,
-                               conf: Conf): RDD[FreqItemset] = {
+                               partitioner: Partitioner): RDD[FreqItemset] = {
     val itemToRank = freqItems.zipWithIndex.toMap
     val temp = data.flatMap { transaction =>
       genCondTransactions(transaction, itemToRank, partitioner)
@@ -225,9 +223,9 @@ class FPNewDef private(
       coArr.iterator
     }).mapPartitions { iter =>
       if (iter.hasNext) {
-        val res = new ArrayBuffer[(Int, FPTree[Int])]()
+        val res = new ArrayBuffer[(Int, FPTree)]()
         var pre = iter.next()
-        var fPTree = new FPTree[Int]()
+        var fPTree = new FPTree()
         fPTree.add(pre._2._1, pre._2._2)
         while (iter.hasNext) {
           val cur = iter.next()
@@ -235,7 +233,7 @@ class FPNewDef private(
             fPTree.add(cur._2._1, cur._2._2)
           } else {
             res += ((pre._1, fPTree))
-            fPTree = new FPTree[Int]()
+            fPTree = new FPTree()
             pre = cur
             fPTree.add(pre._2._1, pre._2._2)
           }
