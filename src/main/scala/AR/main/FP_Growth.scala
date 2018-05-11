@@ -47,7 +47,7 @@ object FP_Growth {
     val fp = new FPNewDef() //FPGrowth(）
       .setMinSupport(0.092) // 0.092
       .setNumPartitions(partitionNum)
-    val fpgrowth = fp.run(transactions, sc, myConf)
+    val fpgrowth = fp.run(transactions)
     fpgrowth.freqItemsets.persist(StorageLevel.MEMORY_AND_DISK_SER)
     genFreSortBy(myConf.outputFilePath + "/Freq", fpgrowth)
     genRules(myConf.tempFilePath, fpgrowth)

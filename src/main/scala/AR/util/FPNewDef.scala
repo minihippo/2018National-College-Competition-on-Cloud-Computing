@@ -91,7 +91,7 @@ class FPNewDef private(
     * @return an FPGrowthModel
     *
     */
-  def run(data: RDD[Array[Int]], sc: SparkContext, conf: Conf): FPModel = {
+  def run(data: RDD[Array[Int]]): FPModel = {
     val count = data.count()
     val minCount = math.ceil(minSupport * count).toLong
     val numParts = if (numPartitions > 0) numPartitions else data.partitions.length
@@ -179,9 +179,7 @@ class FPNewDef private(
                                data: RDD[Array[Int]],
                                minCount: Long,
                                freqItems: Array[Int],
-                               partitioner: Partitioner,
-                               sc: SparkContext,
-                               conf: Conf): RDD[FreqItemset] = {
+                               partitioner: Partitioner): RDD[FreqItemset] = {
     val itemToRank = freqItems.zipWithIndex.toMap
     val temp = data.flatMap { transaction =>
       genCondTransactions(transaction, itemToRank, partitioner)
