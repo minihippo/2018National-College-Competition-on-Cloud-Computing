@@ -147,10 +147,10 @@ class ReFPTree[T]() extends Serializable {
     val deepNodeID = parents.keys.max
     val deepNodes = parents(deepNodeID)
     //backtracking then get only one path
-    if (parents.keys.size == 1 && count >= minCount) {
-      partFreqSet ++= extractOnePath(minCount, suffix, count, deepNodes.head._1)
-      return partFreqSet
-    }
+//    if (parents.keys.size == 1 && count >= minCount) {
+//      partFreqSet ++= extractOnePath(minCount, suffix, count, deepNodes.head._1)
+//      return partFreqSet
+//    }
     //over one path
     val nSuffix = suffix :+ deepNodeID
 //    var nSuffix_count = deepNodes.map(_._2).sum
