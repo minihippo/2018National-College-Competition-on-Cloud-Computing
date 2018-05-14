@@ -247,12 +247,12 @@ class FPNewDef private(
     //already generate fp-tree
     temp.count()
     val gen = temp.flatMap { case (part, tree) =>
-      tree.extract(minCount, x => partitioner.getPartition(x) == part)
+      tree.extract(minCount,1, x => partitioner.getPartition(x) == part)
     }
     //already generate frequentItemSet
     gen.count()
     gen.map { case (ranks, count) =>
-      new FreqItemset(ranks.map(i => freqItems(i)).toArray, count)
+      new FreqItemset(ranks.map({ i =>freqItems (i) }).toArray, count)
     }
   }
 
