@@ -7,16 +7,17 @@ object checkAns {
     val conf = new SparkConf().setAppName("UserDistribution").setMaster("local")
     val sc = new SparkContext(conf)
     val freq = sc.textFile("./data/Freq/part-00000").collect()
-    val freqm = sc.textFile("./data/FreqM/part-00000").collect()
+    val freqm = sc.textFile("./data/FreqM/*").collect()
 
     if (freq.length != freqm.length) {
-      println("incorrect")
+      println("len incorrect")
       return
     }
 
     for (i <- 0.until(freq.length)) {
       if (freq(i) != freqm(i)) {
-        println("incorrect")
+        println("incorrect", i)
+        return
       }
     }
 
