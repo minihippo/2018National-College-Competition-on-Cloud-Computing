@@ -261,9 +261,14 @@ class FPNewDef private(
       tree.extract(minCount, x => partitioner.getPartition(x) == part)
     }
     //already generate frequentItemSet
+
+    println("=====")
+    println(freqItems.zipWithIndex.toMap)
+    println("=====")
+
     gen.count()
     gen.map { case (ranks, count) =>
-      new FreqItemset(ranks/*.map(i => freqItems(i)).*/toArray, count)
+      new FreqItemset(ranks.map(i => freqItems(i)).toArray, count)
     }
   }
 
@@ -362,9 +367,9 @@ class FPNewDef private(
         output.append(filtered.slice(0, i + 1))
         group.add(part)
 
-        val a = filtered.slice(0, i + 1).toList
+//        val a = filtered.slice(0, i + 1).toList
 //        if (a.contains(5)) {
-          println(a)
+//          println(a)
 //        }
 
       }
