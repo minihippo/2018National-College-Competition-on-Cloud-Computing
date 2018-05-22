@@ -58,9 +58,11 @@ class FPTree[T] extends Serializable {
           curr = curr.parent
         }
         tree.add(t, node.count)
-        if (suffix == 9 && flag == 1) {
-          println(t,node.count)
-        }
+
+//        if (suffix == 9 && flag == 1) {
+//          println(t,node.count)
+//        }
+
       }
     }
     tree
