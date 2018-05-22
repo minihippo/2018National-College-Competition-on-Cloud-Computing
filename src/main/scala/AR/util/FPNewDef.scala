@@ -222,10 +222,16 @@ class FPNewDef private(
       pair.map(t => coArr.append((pre, (t._1.array, t._2))))
       coArr.iterator
     }).mapPartitions { iter =>
+//      println("-------------------")
       if (iter.hasNext) {
         val res = new ArrayBuffer[(Int, FPTree)]()
         var pre = iter.next()
         var fPTree = new FPTree()
+
+//        if (pre._2._1.contains(5)) {
+//          println(pre._2._1.toList)
+//        }
+
         fPTree.add(pre._2._1, pre._2._2)
         while (iter.hasNext) {
           val cur = iter.next()
@@ -237,6 +243,11 @@ class FPNewDef private(
             pre = cur
             fPTree.add(pre._2._1, pre._2._2)
           }
+//
+//          if (cur._2._1.contains(5)) {
+//            println(cur._2._1.toList)
+//          }
+
         }
         res += ((pre._1, fPTree))
         res.toArray.toIterator
@@ -252,7 +263,7 @@ class FPNewDef private(
     //already generate frequentItemSet
     gen.count()
     gen.map { case (ranks, count) =>
-      new FreqItemset(ranks.map(i => freqItems(i)).toArray, count)
+      new FreqItemset(ranks/*.map(i => freqItems(i)).*/toArray, count)
     }
   }
 
@@ -350,6 +361,12 @@ class FPNewDef private(
       if (!group.contains(part)) {
         output.append(filtered.slice(0, i + 1))
         group.add(part)
+
+        val a = filtered.slice(0, i + 1).toList
+//        if (a.contains(5)) {
+          println(a)
+//        }
+
       }
       i -= 1
     }

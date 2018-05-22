@@ -26,6 +26,9 @@ class FPTree extends Serializable {
     var curr = root
     curr.count += count
     t.foreach { item =>
+//      if (item == 5) {
+//        println(curr.item)
+//      }
       //      val summary = summaries.getOrElseUpdate(item, new Parents)
       //      summary.count += count
       val child = curr.children.getOrElseUpdate(item, {
@@ -77,7 +80,7 @@ class FPTree extends Serializable {
   def extract(minCount: Long,
               validateSuffix: Int => Boolean = _ => true): Iterator[(List[Int], Long)] = {
     val reFPTree = new ReFPTree()
-    reFPTree.generateTree(root,validateSuffix)
+    reFPTree.generateTree(root, validateSuffix)
       .traverse(minCount, validateSuffix)
   }
 }
@@ -107,6 +110,11 @@ class ReFPTree[T]() extends Serializable {
     node.children.foreach { case (item, node) =>
       val curr = new ReNode(parent)
       curr.item = item
+
+//      if (item == 5 && validateSuffix(10)) {
+//        println("-",5, parent.item, node.count)
+//      }
+
       if (validateSuffix(item)) {
         val summary = summaries.getOrElseUpdate(item, new Summary)
         summary.parents.append((parent, node.count))
@@ -160,6 +168,9 @@ class ReFPTree[T]() extends Serializable {
     val deepNodes_parents = mutable.Map.empty[Int, ListBuffer[(ReNode, Long)]]
     parents -= deepNodeID
     deepNodes.foreach { case (node, count) =>
+//      if (suffix.size == 1 && suffix.head == 10 && deepNodeID == 5) {
+//        println(node.item, count, node.parent.item)
+//      }
       nSuffix_count += count
       if (!node.parent.isRoot) {
         val deep_nodes = deepNodes_parents.getOrElseUpdate(node.parent.item, ListBuffer.empty[(ReNode, Long)])

@@ -45,11 +45,11 @@ object FP_Growth {
     val transactions = data.map(s => s.trim.split(' ').map(f => f.toInt))
 
     val fp = new FPNewDef() //FPGrowth(）
-      .setMinSupport(0.5) // 0.092
+      .setMinSupport(0.4) // 0.092
       .setNumPartitions(partitionNum)
     val fpgrowth = fp.run(transactions)
     fpgrowth.freqItemsets.persist(StorageLevel.MEMORY_AND_DISK_SER)
-    genFreSortBy(myConf.outputFilePath + "/FreqMA", fpgrowth)
+    genFreSortBy(myConf.outputFilePath + "/FreqM", fpgrowth)
 //    genRules(myConf.tempFilePath, fpgrowth)
     sc.stop()
   }
