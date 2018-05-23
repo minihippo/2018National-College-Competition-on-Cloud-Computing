@@ -41,11 +41,11 @@ object FP_Growth {
       classOf[RuleNewDef]))
     val sc = new SparkContext(conf)
 
-    val data = sc.textFile(myConf.inputFilePath /*+ "/D_1400000.dat"*/, partitionNum)
+    val data = sc.textFile(myConf.inputFilePath + "/D.dat", partitionNum)
     val transactions = data.map(s => s.trim.split(' ').map(f => f.toInt))
 
     val fp = new FPNewDef() //FPGrowth(）
-      .setMinSupport(0.4) // 0.092
+      .setMinSupport(0.092) // 0.092
       .setNumPartitions(partitionNum)
     val fpgrowth = fp.run(transactions)
     fpgrowth.freqItemsets.persist(StorageLevel.MEMORY_AND_DISK_SER)

@@ -364,10 +364,10 @@ class FPNewDef private(
         output.append(filtered.slice(0, i + 1))
         group.add(part)
 
-        val a = filtered.slice(0, i + 1).toList
-        if (a.contains(5)) {
-          println(a)
-        }
+//        val a = filtered.slice(0, i + 1).toList
+//        if (a.contains(5)) {
+//          println(a)
+//        }
 
       }
       i -= 1

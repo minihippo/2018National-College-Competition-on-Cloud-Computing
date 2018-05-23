@@ -13,7 +13,7 @@ object Main {
     val myConf = Conf.getConfWithoutInputAndOutput(otherArgs.toArray)
     println("args:" + myConf.toString())
 
-    val conf = new SparkConf().setAppName(myConf.appName).setMaster("local")
+    val conf = new SparkConf().setAppName(myConf.appName)//.setMaster("local")
     myConf.inputFilePath = args(0)
     myConf.outputFilePath = args(1)
 //    myConf.tempFilePath = args(2)
