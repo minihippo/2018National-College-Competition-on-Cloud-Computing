@@ -262,9 +262,9 @@ class FPNewDef private(
     }
     //already generate frequentItemSet
 
-    println("=====")
-    println(freqItems.zipWithIndex.toMap)
-    println("=====")
+//    println("=====")
+//    println(freqItems.zipWithIndex.toMap)
+//    println("=====")
 
     gen.count()
     gen.map { case (ranks, count) =>

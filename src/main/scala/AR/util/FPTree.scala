@@ -1,6 +1,5 @@
 package AR.util
 
-import javafx.scene.Parent
 
 import AR.util.FPTree.Node
 
@@ -152,9 +151,9 @@ class ReFPTree[T]() extends Serializable {
   def extract(minCount: Long, suffix: List[Int], count: Long,
               parents: mutable.Map[Int, ListBuffer[(ReNode, Long)]]): ListBuffer[(List[Int], Long)] = {
 
-    if (suffix.head == 9) {
-      println("----------------------")
-    }
+//    if (suffix.head == 9) {
+//      println("----------------------")
+//    }
 
     val partFreqSet = ListBuffer.empty[(List[Int], Long)]
     val deepNodeID = parents.keys.max
@@ -174,9 +173,9 @@ class ReFPTree[T]() extends Serializable {
     parents -= deepNodeID
     deepNodes.foreach { case (node, count) =>
 
-      if (suffix.head == 9) {
-        println(node.item, count, node.parent.item)
-      }
+//      if (suffix.head == 9) {
+//        println(node.item, count, node.parent.item)
+//      }
 
       nSuffix_count += count
       if (!node.parent.isRoot) {
@@ -190,10 +189,10 @@ class ReFPTree[T]() extends Serializable {
       }
     }
     if (nSuffix_count >= minCount) {
-
-      if (suffix.head == 9) {
-        println("1!", nSuffix, nSuffix_count)
-      }
+//
+//      if (suffix.head == 9) {
+//        println("1!", nSuffix, nSuffix_count)
+//      }
 
       partFreqSet.append((nSuffix, nSuffix_count))
     }
@@ -201,18 +200,18 @@ class ReFPTree[T]() extends Serializable {
     nSuffix_count -= countRoot
     if (nSuffix_count >= minCount && nSuffix_count != 0) {
 
-      if (suffix.head == 9) {
-        println("2!", nSuffix, nSuffix_count)
-      }
+//      if (suffix.head == 9) {
+//        println("2!", nSuffix, nSuffix_count)
+//      }
 
       partFreqSet ++= extract(minCount, nSuffix, nSuffix_count, deepNodes_parents)
     }
     //backtacking suffix without maxparent
     if (suffix_count >= minCount && suffix_count != 0) {
 
-      if (suffix.head == 9) {
-        println("3!", suffix, suffix_count)
-      }
+//      if (suffix.head == 9) {
+//        println("3!", suffix, suffix_count)
+//      }
       partFreqSet ++= extract(minCount, suffix, suffix_count, parents)
     }
     partFreqSet

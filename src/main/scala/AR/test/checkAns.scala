@@ -6,7 +6,7 @@ object checkAns {
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("UserDistribution").setMaster("local")
     val sc = new SparkContext(conf)
-    val freq = sc.textFile("./data/FreqMA/*").collect()
+    val freq = sc.textFile("./data/Freq/*").collect()
     val freqm = sc.textFile("./data/FreqM/*").collect()
 
     if (freq.length != freqm.length) {
